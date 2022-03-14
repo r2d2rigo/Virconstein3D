@@ -20,7 +20,9 @@ void main(void)
 
 	while (true)
 	{
-		player.rotation += pi / 512;
+		cl_input();
+
+		r_raycast();
 
 		r_draw_world();
 

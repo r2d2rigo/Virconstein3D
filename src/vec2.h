@@ -11,6 +11,13 @@ struct  vec2_i {
 	int y;
 };
 
+
+void vec2_zero(vec2_f* v)
+{
+	v->x = 0;
+	v->y = 0;
+}
+
 /**
 * Adds v2 into v1.
 **/
@@ -44,6 +51,12 @@ void vec2_copy(vec2_f* dst, vec2_f* src)
 	dst->y = src->y;
 }
 
+void vec2_multiply_add(vec2_f* dst, vec2_f* v, float amount)
+{
+	dst->x += v->x * amount;
+	dst->y += v->y * amount;
+}
+
 float vec2_length(vec2_f* v)
 {
 	return sqrt((v->x * v->x) + (v->y * v->y));
@@ -60,7 +73,7 @@ void vec2_normalize(vec2_f* v)
 void vec2_from_angle(vec2_f* v, float angle)
 {
 	v->x = cos(angle);
-	v->y = sin(angle);
+	v->y = -sin(angle);
 }
 
 #endif
