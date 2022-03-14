@@ -13,8 +13,19 @@
 
 void main(void)
 {
-	player.position.x = 4.5 * WORLD_TILE_SIZE;
-	player.position.y = 4.5 * WORLD_TILE_SIZE;
+	for (int y = 0; y < WORLD_TILE_HEIGHT; y++)
+	{
+		for (int x = 0; x < WORLD_TILE_WIDTH; x++)
+		{
+			if (level1_objects[x][y] == 40)
+			{
+				player.position.x = x * WORLD_TILE_SIZE + 0.5;
+				player.position.y = y * WORLD_TILE_SIZE + 0.5;
+
+				break;
+			}
+		}
+	}
 
 	r_init();
 

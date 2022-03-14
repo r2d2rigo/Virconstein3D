@@ -7,22 +7,25 @@
 #include "physics.h"
 #include "Resources.h"
 
-#define	CEILING_COLOR			0xFFC2B094
-#define FLOOR_COLOR				0xFF573C33
+#define	CEILING_COLOR			0xFF151515
+#define FLOOR_COLOR				0xFF3C3934
 
 #define WALL_TEXTURE_SIZE		64
-#define WALL_TEXTURE_COUNT		5
+#define WALL_TEXTURE_COUNT		8
 
-#define	CANVAS_WIDTH			(screen_width / 2)
-#define CANVAS_HEIGHT			(screen_height - 120)
-#define CANVAS_X				((screen_width - CANVAS_WIDTH) / 2)
-#define CANVAS_Y				0
+// #define	CANVAS_WIDTH			(screen_width / 2)
+// #define CANVAS_HEIGHT			(screen_height / 2)
+#define	CANVAS_WIDTH			((screen_width / 8) * 3)
+#define CANVAS_HEIGHT			((screen_height / 8) * 3)
+#define CANVAS_X				((screen_width - (CANVAS_WIDTH * CANVAS_SCALE)) / 2)
+#define CANVAS_Y				((screen_height - (CANVAS_HEIGHT * CANVAS_SCALE)) / 2)
+#define CANVAS_SCALE			2
 
 #define RAY_COUNT				CANVAS_WIDTH
-#define FIELD_OF_VIEW			(pi / 4)
+#define FIELD_OF_VIEW			(pi / 2)
 #define RAY_ANGLE_DELTA			(FIELD_OF_VIEW / RAY_COUNT)
 
-#define MAX_RENDER_DISTANCE		(WORLD_TILE_SIZE * 10.0)
+#define MAX_RENDER_DISTANCE		(WORLD_TILE_SIZE * 50.0)
 
 struct framebuffer_column_s {
 	int x;
@@ -38,7 +41,7 @@ void r_init()
 	define_region(0, 0, 1, 1, 0, 0);
 
 	select_texture(walls);
-	define_region_matrix(10, 0, 0, 0, WALL_TEXTURE_SIZE, 0, 0, (WALL_TEXTURE_SIZE * WALL_TEXTURE_COUNT), 1, 0);
+	define_region_matrix(10, 0, 0, 0, WALL_TEXTURE_SIZE - 1, 0, 0, (WALL_TEXTURE_SIZE * WALL_TEXTURE_COUNT), (WALL_TEXTURE_SIZE * WALL_TEXTURE_COUNT), 0);
 }
 
 void r_raycast()
@@ -48,7 +51,7 @@ void r_raycast()
 
 	int initial_pixel_column = 0;
 
-	if (get_frame_counter() % 2 == 0)
+	if (get_frame_counter() % 2 == 1)
 	{
 		initial_pixel_column = 1;
 	}
@@ -79,7 +82,7 @@ void r_raycast()
 
 		// framebuffer[i].x = i;
 		framebuffer[i].region = 10 + (raycast_result.tile_id * WALL_TEXTURE_SIZE) + texture_pixel_column;
-		framebuffer[i].slice_height = fmax(20.0, CANVAS_HEIGHT / raycast_result.distance) / cos(ray_angle);
+		framebuffer[i].slice_height = fmax(2.0, CANVAS_HEIGHT / raycast_result.distance) / cos(ray_angle);
 	}
 }
 
@@ -87,8 +90,8 @@ void r_draw_background()
 {
 	clear_screen(CEILING_COLOR);
 
-	set_drawing_point(CANVAS_X, CANVAS_HEIGHT / 2);
-	set_drawing_scale(CANVAS_WIDTH, CANVAS_HEIGHT / 2);
+	set_drawing_point(CANVAS_X, CANVAS_Y + ((CANVAS_HEIGHT / 2) * CANVAS_SCALE));
+	set_drawing_scale(CANVAS_WIDTH * CANVAS_SCALE, (CANVAS_HEIGHT / 2) * CANVAS_SCALE);
 	set_multiply_color(FLOOR_COLOR);
 
 	select_texture(pixel);
@@ -105,9 +108,9 @@ void r_draw_walls()
 	{
 		select_region(framebuffer[i].region);
 
-		set_drawing_scale(1.0, framebuffer[i].slice_height / WALL_TEXTURE_SIZE);
+		set_drawing_scale(1.0 * CANVAS_SCALE, (framebuffer[i].slice_height / WALL_TEXTURE_SIZE) * CANVAS_SCALE);
 
-		draw_region_zoomed_at(CANVAS_X + i, (CANVAS_HEIGHT - framebuffer[i].slice_height) * 0.5);
+		draw_region_zoomed_at((i * CANVAS_SCALE) + CANVAS_X, CANVAS_Y + (((CANVAS_HEIGHT - framebuffer[i].slice_height) * 0.5) * CANVAS_SCALE));
 	}
 }
 

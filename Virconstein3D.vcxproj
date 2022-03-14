@@ -85,8 +85,10 @@
     <ClCompile Include="src\main.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\defs.h" />
     <ClInclude Include="src\physics.h" />
     <ClInclude Include="src\player.h" />
+    <ClInclude Include="src\rect.h" />
     <ClInclude Include="src\render.h" />
     <ClInclude Include="src\Resources.h" />
     <ClInclude Include="src\vec2.h" />
