@@ -19,8 +19,8 @@ void main(void)
 		{
 			if (level1_objects[x][y] == 40)
 			{
-				player.position.x = x * WORLD_TILE_SIZE + 0.5;
-				player.position.y = y * WORLD_TILE_SIZE + 0.5;
+				player.position.x = (x + 0.5) * WORLD_TILE_SIZE;
+				player.position.y = (y + 0.5) * WORLD_TILE_SIZE;
 
 				break;
 			}

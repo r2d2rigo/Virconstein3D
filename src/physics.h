@@ -72,7 +72,9 @@ bool p_raymarch(raycast_s* result, vec2_f* ray_step_size, vec2_f* ray_length_1d,
 		"mov [R8], R0"							// map_check->x += step->x;
 
 		"mov R0, [R6]"
-		"mov [BP-3], R0"						// distance = ray_length_1d->x;
+		"mov R1, 10.0"
+		"fmul R0, R1"
+		"mov [BP-3], R0"						// distance = ray_length_1d->x * WORLD_TILE_SIZE;
 
 		"mov R0, [R6]"
 		"mov R1, [R5]"
@@ -91,7 +93,9 @@ bool p_raymarch(raycast_s* result, vec2_f* ray_step_size, vec2_f* ray_length_1d,
 		"mov [R8+1], R0"						// map_check->y += step->y;
 
 		"mov R0, [R6+1]"
-		"mov [BP-3], R0"						// distance = ray_length_1d->y;
+		"mov R1, 10.0"
+		"fmul R0, R1"
+		"mov [BP-3], R0"						// distance = ray_length_1d->y * WORLD_TILE_SIZE;
 
 		"mov R0, [R6+1]"
 		"mov R1, [R5+1]"
@@ -134,14 +138,14 @@ bool p_raymarch(raycast_s* result, vec2_f* ray_step_size, vec2_f* ray_length_1d,
 		if (ray_length_1d->x < ray_length_1d->y)
 		{
 			map_check->x += step->x;
-			distance = ray_length_1d->x;
+			distance = ray_length_1d->x * WORLD_TILE_SIZE;
 			ray_length_1d->x += ray_step_size->x;
 			side_hit = SIDE_X;
 		}
 		else
 		{
 			map_check->y += step->y;
-			distance = ray_length_1d->y;
+			distance = ray_length_1d->y * WORLD_TILE_SIZE;
 			ray_length_1d->y += ray_step_size->y;
 			side_hit = SIDE_Y;
 		}
@@ -181,7 +185,7 @@ void p_raycast(raycast_s* result, vec2_f* origin, vec2_f* direction, float max_d
 	}
 	else
 	{
-		ray_step_size.x = sqrt(WORLD_TILE_SIZE + pow(direction->y / direction->x, 2.0));
+		ray_step_size.x = sqrt(1 + pow(direction->y / direction->x, 2.0));
 	}
 
 	if (direction->y == 0)
@@ -190,32 +194,32 @@ void p_raycast(raycast_s* result, vec2_f* origin, vec2_f* direction, float max_d
 	}
 	else
 	{
-		ray_step_size.y = sqrt(WORLD_TILE_SIZE + pow(direction->x / direction->y, 2.0));
+		ray_step_size.y = sqrt(1 + pow(direction->x / direction->y, 2.0));
 	}
 
-	map_check.x = floor(origin->x);
-	map_check.y = floor(origin->y);
+	map_check.x = floor(origin->x / WORLD_TILE_SIZE);
+	map_check.y = floor(origin->y / WORLD_TILE_SIZE);
 
 	if (direction->x < 0)
 	{
 		step.x = -1;
-		ray_length_1d.x = (origin->x - map_check.x) * ray_step_size.x;
+		ray_length_1d.x = ((origin->x / WORLD_TILE_SIZE) - map_check.x) * ray_step_size.x;
 	}
 	else
 	{
 		step.x = 1;
-		ray_length_1d.x = ((map_check.x + WORLD_TILE_SIZE) - origin->x) * ray_step_size.x;
+		ray_length_1d.x = ((map_check.x + 1) - (origin->x / WORLD_TILE_SIZE)) * ray_step_size.x;
 	}
 
 	if (direction->y < 0)
 	{
 		step.y = -1;
-		ray_length_1d.y = (origin->y - map_check.y) * ray_step_size.y;
+		ray_length_1d.y = ((origin->y / WORLD_TILE_SIZE) - map_check.y) * ray_step_size.y;
 	}
 	else
 	{
 		step.y = 1;
-		ray_length_1d.y = ((map_check.y + WORLD_TILE_SIZE) - origin->y) * ray_step_size.y;
+		ray_length_1d.y = ((map_check.y + 1) - (origin->y / WORLD_TILE_SIZE)) * ray_step_size.y;
 	}
 
 	if (p_raymarch(result, &ray_step_size, &ray_length_1d, &step, &map_check, max_distance))

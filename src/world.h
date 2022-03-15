@@ -1,7 +1,7 @@
 #ifndef __WORLD_H__
 #define __WORLD_H__
 
-#define WORLD_TILE_SIZE				1.0
+#define WORLD_TILE_SIZE				10.0
 #define WORLD_TILE_WIDTH			100
 #define WORLD_TILE_HEIGHT			100
 

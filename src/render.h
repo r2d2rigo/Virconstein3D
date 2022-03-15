@@ -73,16 +73,16 @@ void r_raycast()
 
 		if (raycast_result.side == SIDE_Y)
 		{
-			texture_pixel_column = fmod(raycast_result.intersection_point.x, WORLD_TILE_SIZE) * WALL_TEXTURE_SIZE;
+			texture_pixel_column = (fmod(raycast_result.intersection_point.x, WORLD_TILE_SIZE) / WORLD_TILE_SIZE) * WALL_TEXTURE_SIZE;
 		}
 		else
 		{
-			texture_pixel_column = fmod(raycast_result.intersection_point.y, WORLD_TILE_SIZE) * WALL_TEXTURE_SIZE;
+			texture_pixel_column = (fmod(raycast_result.intersection_point.y, WORLD_TILE_SIZE) / WORLD_TILE_SIZE) * WALL_TEXTURE_SIZE;
 		}
 
-		// framebuffer[i].x = i;
 		framebuffer[i].region = 10 + (raycast_result.tile_id * WALL_TEXTURE_SIZE) + texture_pixel_column;
-		framebuffer[i].slice_height = fmax(2.0, CANVAS_HEIGHT / raycast_result.distance) / cos(ray_angle);
+		// framebuffer[i].region = 10 + (raycast_result.tile_id * WALL_TEXTURE_SIZE) + 64;
+		framebuffer[i].slice_height = fmax(2.0, CANVAS_HEIGHT / (raycast_result.distance / WORLD_TILE_SIZE)) / cos(ray_angle);
 	}
 }
 

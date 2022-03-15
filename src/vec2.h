@@ -34,6 +34,50 @@ void vec2_zero(vec2_f* v)
 #endif
 }
 
+void vec2_set(vec2_f* v, float x, float y)
+{
+#ifdef USE_OPTIMIZED_CODE
+	asm
+	{
+		// R0 = x
+		"mov R0, {x}"
+		// R1 = y
+		"mov R1, {y}"
+		// R2 = v
+		"mov R2, {v}"
+		// *R2 = R0
+		"mov [R2], R0"
+		// *R2 = R1
+		"mov [R2+1], R1"
+	}
+#else
+	v->x = x;
+	v->y = y;
+#endif
+}
+
+void vec2_i_set(vec2_i* v, int x, int y)
+{
+#ifdef USE_OPTIMIZED_CODE
+	asm
+	{
+		// R0 = x
+		"mov R0, {x}"
+		// R1 = y
+		"mov R1, {y}"
+		// R2 = v
+		"mov R2, {v}"
+		// *R2 = R0
+		"mov [R2], R0"
+		// *R2 = R1
+		"mov [R2+1], R1"
+	}
+#else
+	v->x = x;
+	v->y = y;
+#endif
+}
+
 /**
 * Adds v2 into v1.
 **/
@@ -77,9 +121,9 @@ void vec2_subtract(vec2_f* v1, vec2_f* v2)
 #ifdef USE_OPTIMIZED_CODE
 	asm
 	{
-		// R0 = v1->x
+		// R0 = v1
 		"mov R0, {v1}"
-		// R1 = v2->x
+		// R1 = v2
 		"mov R1, {v2}"
 		// R2 = *R0
 		"mov R2, [R0]"
@@ -90,13 +134,13 @@ void vec2_subtract(vec2_f* v1, vec2_f* v2)
 		// *R0 = R2
 		"mov [R0], R2"
 		// R2 = *R0
-		"mov R2, [R0 + 1]"
+		"mov R2, [R0+1]"
 		// R3 = *R1
-		"mov R3, [R1 + 1]"
+		"mov R3, [R1+1]"
 		// R2 -= R3
 		"fsub R2, R3"
 		// *R0 = R2
-		"mov [R0 + 1], R2"
+		"mov [R0+1], R2"
 	}
 #else
 	v1->x -= v2->x;
