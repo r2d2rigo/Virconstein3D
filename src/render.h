@@ -2,6 +2,7 @@
 #define __RENDER_H__
 
 #include "video.h"
+#include "string.h"
 #include "player.h"
 #include "world.h"
 #include "physics.h"
@@ -28,8 +29,10 @@
 #define MAX_RENDER_DISTANCE		(WORLD_TILE_SIZE * 50.0)
 
 struct framebuffer_column_s {
-	int x;
-	int region;
+	// int x;
+	// int region;
+	int tile_id;
+	float texcoord;
 	float slice_height;
 };
 
@@ -69,18 +72,23 @@ void r_raycast()
 			continue;
 		}
 
-		int texture_pixel_column;
+		// int texture_pixel_column;
+		float texcoord;
 
 		if (raycast_result.side == SIDE_Y)
 		{
-			texture_pixel_column = (fmod(raycast_result.intersection_point.x, WORLD_TILE_SIZE) / WORLD_TILE_SIZE) * WALL_TEXTURE_SIZE;
+			texcoord = (fmod(raycast_result.intersection_point.x, WORLD_TILE_SIZE) / WORLD_TILE_SIZE);
+			// texture_pixel_column = (fmod(raycast_result.intersection_point.x, WORLD_TILE_SIZE) / WORLD_TILE_SIZE) * WALL_TEXTURE_SIZE;
 		}
 		else
 		{
-			texture_pixel_column = (fmod(raycast_result.intersection_point.y, WORLD_TILE_SIZE) / WORLD_TILE_SIZE) * WALL_TEXTURE_SIZE;
+			texcoord = (fmod(raycast_result.intersection_point.y, WORLD_TILE_SIZE) / WORLD_TILE_SIZE);
+			// texture_pixel_column = (fmod(raycast_result.intersection_point.y, WORLD_TILE_SIZE) / WORLD_TILE_SIZE) * WALL_TEXTURE_SIZE;
 		}
 
-		framebuffer[i].region = 10 + (raycast_result.tile_id * WALL_TEXTURE_SIZE) + texture_pixel_column;
+		// framebuffer[i].region = 10 + (raycast_result.tile_id * WALL_TEXTURE_SIZE) + texture_pixel_column;
+		framebuffer[i].tile_id = raycast_result.tile_id;
+		framebuffer[i].texcoord = texcoord;
 		// framebuffer[i].region = 10 + (raycast_result.tile_id * WALL_TEXTURE_SIZE) + 64;
 		framebuffer[i].slice_height = fmax(2.0, CANVAS_HEIGHT / (raycast_result.distance / WORLD_TILE_SIZE)) / cos(ray_angle);
 	}
@@ -101,12 +109,32 @@ void r_draw_background()
 
 void r_draw_walls()
 {
+	int f = get_frame_counter() % (LIGHT_FLICKER_FRAME_LENGTH * strlen(LIGHT_FLICKER_STATES));
+	int h = f / LIGHT_FLICKER_FRAME_LENGTH;
+
+
 	set_multiply_color(color_white);
 	select_texture(walls);
 
 	for (int i = 0; i < RAY_COUNT; i++)
 	{
-		select_region(framebuffer[i].region);
+		int tile_id = framebuffer[i].tile_id;
+
+		if (tile_id == 41)
+		{
+			if (LIGHT_FLICKER_STATES[h] == '0')
+			{
+				tile_id = 32;
+			}
+			else
+			{
+				tile_id = 34;
+			}
+		}
+
+		int slice_region = 10 + (tile_id * WALL_TEXTURE_SIZE) + (framebuffer[i].texcoord * WALL_TEXTURE_SIZE);
+
+		select_region(slice_region);
 
 		set_drawing_scale(1.0 * CANVAS_SCALE, (framebuffer[i].slice_height / WALL_TEXTURE_SIZE) * CANVAS_SCALE);
 
