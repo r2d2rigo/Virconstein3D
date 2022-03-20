@@ -56,6 +56,3 @@ dkms.conf
 *.vcxproj.user
 [Bb]in/
 [Oo]bj/
-
-# Copyrighted assets
-assets/walls.png
